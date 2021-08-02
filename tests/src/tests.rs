@@ -28,13 +28,16 @@ fn test_erc721_transfer() {
     assert_eq!(t.balance_of(t.bob), 0.into());
 }
 #[test]
-fn test_erc721_approve() {
+fn test_erc721_approve_transfer() {
     let id = 10.into();
+    let id1 = 11.into();
     let mut t = Token::deployed();
     t.mint(t.bob, Sender(t.ali), id);
+    t.mint(t.bob, Sender(t.ali), id1);
     t.approve(t.ali, id, Sender(t.bob));
     t.transfer_from(t.bob, t.ali, id, Sender(t.ali));
-    assert_eq!(t.balance_of(t.ali), 1.into());
+    t.transfer_from(t.bob, t.ali, id1, Sender(t.bob));
+    assert_eq!(t.balance_of(t.ali), 2.into());
     println!("{}", t.default);
     assert_eq!(t.approval(id), t.default);
 }
@@ -49,7 +52,7 @@ fn test_erc721_approve_all() {
     t.mint(t.bob, Sender(t.ali), id2);
     t.approve_all(t.ali, Sender(t.bob));
     t.transfer_from(t.bob, t.ali, id, Sender(t.ali));
-    t.transfer_from(t.bob, t.ali, id1, Sender(t.ali));
+    t.transfer_from(t.bob, t.ali, id1, Sender(t.bob));
     t.transfer_from(t.bob, t.ali, id2, Sender(t.ali));
     assert_eq!(t.balance_of(t.ali), 3.into());
     assert_eq!(t.owner_of(id), t.ali);

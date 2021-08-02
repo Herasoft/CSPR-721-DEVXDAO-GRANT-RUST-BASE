@@ -146,6 +146,7 @@ pub extern "C" fn transfer_from() {
     let owner: AccountHash = runtime::get_named_arg("owner");
     let recipient: AccountHash = runtime::get_named_arg("recipient");
     let id: U256 = runtime::get_named_arg("id");
+   
     _transfer_from(owner, recipient, id);
 }
 
@@ -270,16 +271,19 @@ fn _transfer(sender: AccountHash, recipient: AccountHash, id: U256) {
 
 fn _transfer_from(owner: AccountHash, recipient: AccountHash, id: U256) {
     let sender = runtime::get_caller();
-
+    
     let approval_key = approval_key(&id);
     let approve_all = approval_all_key(&owner, &recipient);
 
     let approved_account = get_key::<AccountHash>(&approval_key);
 
     let all_true: bool = get_key::<bool>(&approve_all);
-    if all_true || approved_account == sender {
+    if all_true || approved_account == sender || sender==owner  {
         _transfer(owner, recipient, id);
+    }else{
+        revert(ApiError::User(1))
     }
+    
 }
 fn _mint(id: U256, receiver: AccountHash, _caller: AccountHash) {
     let owner_key = owner_key(id);
